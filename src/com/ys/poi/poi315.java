@@ -25,23 +25,23 @@ import com.ys.util.Wmf2Svg;
 public class poi315 {
 
     // 图片默认存放路径
-    public final static String path = "E:\\PPTpoi\\aqyd\\img\\";
+    public final static String path = "E:\\PPTpoi\\siji3\\img\\";
     private static Map img;
 
     public static void main(String[] args) throws Exception {
         /*
          * 网页输出
          */
-        FileOutputStream fs = new FileOutputStream(new File("E:\\PPTpoi\\aqyd\\output.html"));
+        FileOutputStream fs = new FileOutputStream(new File("E:\\PPTpoi\\siji3\\output.html"));
         PrintStream printStream = new PrintStream(fs);
         printStream.println(
                 "<!DOCTYPE html>\n<html lang=\"en\" xmlns=\"http://www.w3.org/1/xhtml\">\n<head>\n<meta charset=\"utf-8\" />" + "<title>js实现ppt</title>");
 
         // 加载PPT
-        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\aqyd\\《安全用电》教学课件.ppt"));
+        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\siji3\\四季.ppt"));
         img = new HashMap();
 
-        // extract all pictures contained in the presentation
+        //取所有图片，并把矢量图wmf转为网页可显示的svg格式。 extract all pictures contained in the presentation
         int idx = 1;
         for (HSLFPictureData pict : ss.getPictureData()) {
             // picture data
@@ -67,8 +67,8 @@ public class poi315 {
                 // for (HSLFTextParagraph textP : textPss) {
                 List<HSLFTextRun> trs = textPs.get(0).getTextRuns();
                 for (HSLFTextRun tr : trs) {
-//                    System.out.println("text:    " + tr.getRawText() + "  " + tr.getFontFamily() + "  " + tr.getFontIndex() + "  " + tr.getFontSize() + "  "
-//                            + tr.getFontColor().getSolidColor().getColor().toString());
+                    System.out.println("text:    " + tr.getRawText() + "  " + tr.getFontFamily() + "  " + tr.getFontIndex() + "  " + tr.getFontSize() + "  "
+                            + tr.getFontColor().getSolidColor().getColor().toString());
                 }
                 // }
             }
