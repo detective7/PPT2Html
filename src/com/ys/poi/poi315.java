@@ -41,7 +41,8 @@ public class poi315 {
         HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\siji3\\四季.ppt"));
         img = new HashMap();
 
-        //取所有图片，并把矢量图wmf转为网页可显示的svg格式。 extract all pictures contained in the presentation
+        // 取所有图片，并把矢量图wmf转为网页可显示的svg格式。 extract all pictures contained in the
+        // presentation
         int idx = 1;
         for (HSLFPictureData pict : ss.getPictureData()) {
             // picture data
@@ -50,9 +51,9 @@ public class poi315 {
             String ext = type.extension;
             FileOutputStream out = new FileOutputStream(path + idx + ext);
             out.write(data);
-            if(ext.equals(".wmf")){
+            if (ext.equals(".wmf")) {
                 Wmf2Svg.convert(path + idx + ext);
-                ext=".svg";
+                ext = ".svg";
             }
             img.put(idx, idx + ext);
             out.close();
@@ -64,13 +65,13 @@ public class poi315 {
         for (HSLFSlide slide : slides) {
             List<List<HSLFTextParagraph>> textPss = slide.getTextParagraphs();
             for (List<HSLFTextParagraph> textPs : textPss) {
-                // for (HSLFTextParagraph textP : textPss) {
-                List<HSLFTextRun> trs = textPs.get(0).getTextRuns();
-                for (HSLFTextRun tr : trs) {
-                    System.out.println("text:    " + tr.getRawText() + "  " + tr.getFontFamily() + "  " + tr.getFontIndex() + "  " + tr.getFontSize() + "  "
-                            + tr.getFontColor().getSolidColor().getColor().toString());
+                for (HSLFTextParagraph textP : textPs) {
+                    List<HSLFTextRun> trs = textP.getTextRuns();
+                    for (HSLFTextRun tr : trs) {
+                        System.out.println("text:    " + tr.getRawText() + "  " + tr.getFontFamily() + "  " + tr.getFontIndex() + "  " + tr.getFontSize() + "  "
+                                + tr.getFontColor().getSolidColor().getColor().toString());
+                    }
                 }
-                // }
             }
         }
         /**
@@ -82,10 +83,10 @@ public class poi315 {
              */
             printStream.println("\n function fun" + i
                     + "() {\n var div_all = document.getElementById(\"all\");\n if(div_all) {while(div_all.hasChildNodes()) {div_all.removeChild(div_all.firstChild);}");
-            
+
             int j = 0;
             for (HSLFShape shape : slides.get(i).getShapes()) {
-                System.out.println("框类型"+shape.getClass().toGenericString()+"         "+shape.getShapeName()+"         ");
+                System.out.println("框类型" + shape.getClass().toGenericString() + "         " + shape.getShapeName() + "         ");
 
                 if (shape instanceof HSLFTextShape) {
                     HSLFTextShape tsh = (HSLFTextShape) shape;
@@ -139,7 +140,7 @@ public class poi315 {
         w = Float.valueOf(ws[1]);
 
         String result = "\n var image" + i + " = document.createElement(\"img\");" + "\n image" + i + ".setAttribute(\"style\", \"position: absolute;top: " + y
-                + "px;left: " + x + "px;width: " + w + "px;height: " + h + "px;\")" + ";image" + i + ".src = \"img/" + img.get(imgIndex)+"\";"
+                + "px;left: " + x + "px;width: " + w + "px;height: " + h + "px;\")" + ";image" + i + ".src = \"img/" + img.get(imgIndex) + "\";"
                 + "div_all.appendChild(image" + i + ");";
         // System.out.println(result);
         return result;
@@ -162,7 +163,7 @@ public class poi315 {
         String result = "\n var p" + j + " = document.createElement(\"p\");" + "\n p" + j + ".setAttribute(\"style\", \"position: absolute;top: " + y
                 + "px;left: " + x + "px;width: " + w + "px;height: " + h + "px;\")" + ";p" + j + ".innerHTML =\" " + str + "\";\n" + "div_all.appendChild(p" + j
                 + ");";
-        //System.out.println(result);
+        // System.out.println(result);
         return result;
     }
 
