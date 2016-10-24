@@ -1,14 +1,13 @@
 package com.ys.poi;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.hslf.model.MovieShape;
 import org.apache.poi.hslf.usermodel.HSLFPictureData;
 import org.apache.poi.hslf.usermodel.HSLFPictureShape;
 import org.apache.poi.hslf.usermodel.HSLFShape;
@@ -87,7 +86,7 @@ public class poi315 {
             int j = 0;
             for (HSLFShape shape : slides.get(i).getShapes()) {
                 System.out.println("框类型" + shape.getClass().toGenericString() + "         " + shape.getShapeName() + "         ");
-
+                System.out.println(shape.getClass().toString()+"      "+MovieShape.class.toString());
                 if (shape instanceof HSLFTextShape) {
                     HSLFTextShape tsh = (HSLFTextShape) shape;
                     // 获取关于文字更加详细的信息
@@ -97,6 +96,9 @@ public class poi315 {
                     HSLFPictureShape tsh = (HSLFPictureShape) shape;
                     System.out.println("读取图片 ： " + tsh.getAnchor() + "     picNum: " + tsh.getPictureIndex());
                     printStream.println(insertImg(j, tsh.getPictureIndex(), tsh.getAnchor().toString()));
+                }else if(shape.getClass().toString().equals(MovieShape.class.toString())){
+                    MovieShape ms = (MovieShape)shape;
+                    System.out.println("视频音频：                 "+ms.getPath());
                 }
                 /* System.out.println("Shape     " + shape.getClass()); */
                 j++;
