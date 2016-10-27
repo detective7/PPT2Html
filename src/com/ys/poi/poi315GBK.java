@@ -8,124 +8,88 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.text.html.HTMLEditorKit.InsertHTMLTextAction;
+
 import org.apache.poi.hslf.model.MovieShape;
-import org.apache.poi.hslf.usermodel.HSLFAutoShape;
-import org.apache.poi.hslf.usermodel.HSLFGroupShape;
 import org.apache.poi.hslf.usermodel.HSLFPictureData;
 import org.apache.poi.hslf.usermodel.HSLFPictureShape;
 import org.apache.poi.hslf.usermodel.HSLFShape;
 import org.apache.poi.hslf.usermodel.HSLFSlide;
-import org.apache.poi.hslf.usermodel.HSLFSlideMaster;
 import org.apache.poi.hslf.usermodel.HSLFSlideShow;
 import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
 import org.apache.poi.hslf.usermodel.HSLFTextRun;
 import org.apache.poi.hslf.usermodel.HSLFTextShape;
-import org.apache.poi.sl.usermodel.PaintStyle;
 import org.apache.poi.sl.usermodel.PictureData;
 
 import com.ys.util.Wmf2Svg;
 
-public class poi315 {
+public class poi315GBK {
 
     // 图片默认存放路径
-    public final static String path = "E:\\PPTpoi\\y\\img\\";
-    // public final static String pathS = "E:\\PPTpoi\\安全用电\\sound\\";
+    public final static String path = "E:\\PPTpoi\\安全用电\\img\\";
     private static Map img;
     private static List<PPTText> texts;
-    private static PrintStream printStream;
-    private static FileOutputStream fs;
 
     public static void main(String[] args) throws Exception {
         /*
          * 网页输出
          */
-        fs = new FileOutputStream(new File("E:\\PPTpoi\\y\\output.html"));
-        printStream = new PrintStream(fs);
+        FileOutputStream fs = new FileOutputStream(new File("E:\\PPTpoi\\安全用电\\output.html"));
+        PrintStream printStream = new PrintStream(fs);
         printStream.println(
                 "<!DOCTYPE html>\n<html lang=\"en\" xmlns=\"http://www.w3.org/1/xhtml\">\n<head>\n<meta charset=\"utf-8\" />" + "<title>js实现ppt</title>");
 
         // 加载PPT
-        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\y\\y.ppt"));
+        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\安全用电\\《安全用电》教学课件.ppt"));
         img = new HashMap();
-        
-
-        for(HSLFSlideMaster am:ss.getSlideMasters()){
-            System.out.println(am.toString());
-        }
-
-        // HSLFSoundData[] sds = ss.getSoundData();
-        // for(HSLFSoundData sd:ss.getSoundData()){
-        // System.out.println(sds.length);
-        // byte[] sData = sd.getData();
-        // String sType= sd.getSoundType();
-        // String sName=sd.getSoundName();
-        // FileOutputStream out = new FileOutputStream(pathS + sName);
-        // out.write(sData);
-        // out.close();
-        // }
 
         // 存字相关信息
         texts = new ArrayList<PPTText>();
 
         // 取所有图片，并把矢量图wmf转为网页可显示的svg格式。 extract all pictures contained in the
         // presentation
+        int idx = 1;
         for (HSLFPictureData pict : ss.getPictureData()) {
             // picture data
             byte[] data = pict.getData();
             PictureData.PictureType type = pict.getType();
             String ext = type.extension;
-            FileOutputStream out = new FileOutputStream(path + pict.getIndex() + ext);
+            FileOutputStream out = new FileOutputStream(path + idx + ext);
             out.write(data);
             if (ext.equals(".wmf")) {
-                Wmf2Svg.convert(path + pict.getIndex() + ext);
+                Wmf2Svg.convert(path + idx + ext);
                 ext = ".svg";
             }
-            // System.out.println(pict.getHeader().toString());
-            img.put(pict.getIndex(), pict.getIndex() + ext);
+            img.put(idx, idx + ext);
             out.close();
+            idx++;
         }
 
         List<HSLFSlide> slides = ss.getSlides();
         printStream.println(JSswitch(slides.size()));
-
         for (HSLFSlide slide : slides) {
-            // 取每部分字的字体，大小和颜色
             List<List<HSLFTextParagraph>> textPss = slide.getTextParagraphs();
             for (List<HSLFTextParagraph> textPs : textPss) {
                 for (HSLFTextParagraph textP : textPs) {
                     List<HSLFTextRun> trs = textP.getTextRuns();
                     for (HSLFTextRun tr : trs) {
                         PPTText text = new PPTText();
-                        String t = tr.getRawText().replaceAll("", "");
-                        if (t != null && !t.equals("") && !t.trim().equals("")) {
-                            text.setSlideNum(slide.getSlideNumber());
-                            text.setText(t.replaceAll("[\n\r\t]", ""));
-                            text.setColor(toHex(tr.getFontColor().getSolidColor().getColor().toString()));
-                            text.setSize(tr.getFontSize());
-                            text.setFontFamily(tr.getFontFamily());
-                            texts.add(text);
-                        }
+                        text.setText(tr.getRawText());
+                        text.setColor(toHex(tr.getFontColor().getSolidColor().getColor().toString()));
+                        text.setSize(tr.getFontSize());
+                        text.setFontFamily(tr.getFontFamily());
+                        texts.add(text);
+                        System.out.println("text: " + tr.getRawText() + " " + tr.getFontFamily() + " " + tr.getFontSize() + " "
+                                + toHex(tr.getFontColor().getSolidColor().getColor().toString()));
                     }
                 }
             }
-            // 下面备注
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getNotes().getTextParagraphs().toString());
-//            if (slide.getBackground().getFill().getPictureData() != null) {
-//                System.out.println(slide.getSlideNumber() + ":       " + slide.getBackground().getFill().getPictureData().getIndex());
-//            } else {
-//                System.out.println(slide.getSlideNumber() + ":       " + slide.getBackground().getFill().getBackgroundColor());
-//            }
-//            System.out.println(slide.getSlideNumber() + ":       " + slide.getBackground().getFill().getForegroundColor());
-//            System.out.println(slide.getSlideNumber() + ":       " + slide.getFollowMasterBackground());
-            System.out.println(slide.getSlideNumber()+":    "+slide.getMasterSheet().toString());
         }
-
-        // System.out.println(texts);
         /**
          * 插入总的switch语句
          */
+        int textNum = 0;// 把上面取出的所有字段，在文本框里遍历一遍
         for (int i = 0; i < slides.size(); i++) {
             /*
              * 每个界面的js函数
@@ -137,11 +101,43 @@ public class poi315 {
             for (HSLFShape shape : slides.get(i).getShapes()) {
                 // System.out.println("框类型" + shape.getClass().toGenericString()
                 // + " " + shape.getShapeName() + " ");
-                dealWithGroup(j, slides.get(i).getSlideNumber(), shape);
+                // System.out.println(shape.getClass().toString() + " " +
+                // MovieShape.class.toString());
+                if (shape instanceof HSLFTextShape) {
+                    HSLFTextShape tsh = (HSLFTextShape) shape;
+                    // 获取关于文字更加详细的信息
+                    if (tsh.getFillColor() != null) {
+                        printStream.println(insertP(j, tsh.getAnchor().toString(), toHex(tsh.getFillColor().toString())));
+                    } else {
+                        printStream.println(insertP(j, tsh.getAnchor().toString(), null));
+                    }
+                    for (; textNum < texts.size();) {
+                        System.out.println(textNum + "");
+                        if (tsh.getText().contains(texts.get(textNum).getText())) {
+                            System.out.println(texts.get(textNum).getText());
+                            printStream.println(insertSpan(j, texts.get(textNum)));
+                            textNum++;
+                        } else {
+                            break;
+                        }
+                    }
+                    // System.out.println("文字和位置： " + tsh.getText() + " " +
+                    // tsh.getFillColor() + " " + tsh.getAnchor().toString());
+
+                } else if (shape instanceof HSLFPictureShape) {
+                    HSLFPictureShape tsh = (HSLFPictureShape) shape;
+                    // System.out.println("读取图片 ： " + tsh.getAnchor() + "
+                    // picNum: " + tsh.getPictureIndex());
+                    printStream.println(insertImg(j, tsh.getPictureIndex(), tsh.getAnchor().toString()));
+                    if (shape.getClass().toString().equals(MovieShape.class.toString())) {
+                        MovieShape ms = (MovieShape) shape;
+                        // System.out.println("视频音频： " + ms.getPath());
+                    }
+                }
+                /* System.out.println("Shape     " + shape.getClass()); */
                 j++;
             }
-            // System.out.println("第" + slides.get(i).getSlideNumber() +
-            // "张PPT解析结束 \n");
+            System.out.println("第" + slides.get(i).getSlideNumber() + "张PPT解析结束  \n");
             printStream.println("}}");
         }
         printStream.println(endDiv(ss.getPageSize().width, ss.getPageSize().height));
@@ -213,15 +209,11 @@ public class poi315 {
     }
 
     // 向div里添加p标签，输入文字
-    public static String insertSpan(int j, PPTText text, String str) {
-        String result = "\n var span = document.createElement(\"span\");";
-        if (text != null) {
-            result += "\n span.setAttribute(\"style\", \"font-family:" + text.getFontFamily() + ";font-size: " + text.getSize() + "px;color:" + text.getColor()
-                    + ";margin: 0;" + "\");\nspan.innerHTML = \"" + str + "\";\n" + "p" + j + ".appendChild(span);";
-        } else {
-            result += "\nspan.innerHTML = \"" + str + "\";\n" + "p" + j + ".appendChild(span);";
-        }
-        // System.out.println(str);
+    public static String insertSpan(int j, PPTText text) {
+        String result = "\n var span = document.createElement(\"span\");" + "\n span.setAttribute(\"style\", \"font-family:" + text.getFontFamily()
+                + ";font-size: " + text.getSize() + "px;color:" + text.getColor() + ";margin: 0;" + "\");\nspan.innerHTML = \"" + text.getText() + "\";\n" + "p"
+                + j + ".appendChild(span);";
+        // System.out.println(result);
         return result;
     }
 
@@ -247,66 +239,6 @@ public class poi315 {
             builder.append("0");
         }
         return builder.toString().toUpperCase();
-    }
-
-    // 用于递归处理GroupShape
-    public static void dealWithGroup(int j, int slideNumber, HSLFShape shape) {
-        // System.out.println(shape.getShapeId());
-        if (shape instanceof HSLFTextShape) {
-            HSLFTextShape tsh = (HSLFTextShape) shape;
-            // 获取关于文字更加详细的信息
-            if (tsh.getFillColor() != null) {
-                printStream.println(insertP(j, tsh.getAnchor().toString(), toHex(tsh.getFillColor().toString())));
-            } else {
-                printStream.println(insertP(j, tsh.getAnchor().toString(), null));
-            }
-            String shapeText = tsh.getText().toString();
-            for (int textNum = 0; textNum < texts.size(); textNum++) {
-                PPTText t = texts.get(textNum);
-
-                if (slideNumber == t.getSlideNum() && shapeText.contains(t.getText().trim())) {
-                    String insertT = t.getText().toString();
-                    // 防止出现Dangling meta character '?' near index 0 ? Can you
-                    // find them.这类错误
-                    // System.out.println(slideNumber+"
-                    // =>"+shapeText.replaceAll("\n", " 换行"));
-                    // System.out.println("填充: ->"+insertT);
-                    if (insertT.equals("[?]") || insertT.startsWith("?")) {
-                        shapeText = shapeText.replaceFirst("\\" + insertT, "");
-                    } else {
-                        shapeText = shapeText.replaceFirst(insertT, "");
-                    }
-                    for (; shapeText.startsWith(" ");) {
-                        shapeText = shapeText.replaceFirst(" ", "");
-                    }
-                    // 回车换行得额外弄，按顺序把字符替换掉,剩下的，是上面textparam查不出的字符，再贴上去
-                    if (shapeText.startsWith("\n")) {
-                        insertT = insertT + "<br>";
-                        shapeText = shapeText.replaceFirst("\n", "");
-                    }
-                    // System.out.println("shapeText: "+shapeText);
-                    printStream.println(insertSpan(j, t, insertT));
-                }
-            }
-            if (!shapeText.trim().isEmpty()) {
-                // System.out.println("还没完，"+shapeText.trim());
-                printStream.println(insertSpan(j, null, shapeText.replace("\n", "<br>")));
-            }
-        } else if (shape instanceof HSLFPictureShape) {
-            HSLFPictureShape tsh = (HSLFPictureShape) shape;
-            // System.out.println("读取图片 ： " + tsh.getAnchor() + "
-            // picNum: " + tsh.getPictureIndex());
-            printStream.println(insertImg(j, tsh.getPictureIndex(), tsh.getAnchor().toString()));
-            if (shape instanceof MovieShape) {
-                MovieShape ms = (MovieShape) shape;
-                // System.out.println("视频音频： " + ms.getPath());
-            }
-        } else if (shape instanceof HSLFGroupShape) {
-            HSLFGroupShape group = (HSLFGroupShape) shape;
-            for (HSLFShape gs : group.getShapes()) {
-                dealWithGroup(j, slideNumber, gs);
-            }
-        }
     }
 
 }
