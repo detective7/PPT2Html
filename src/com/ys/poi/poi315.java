@@ -48,11 +48,6 @@ public class poi315 {
         // 加载PPT
         HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\y\\y.ppt"));
         img = new HashMap();
-        
-
-        for(HSLFSlideMaster am:ss.getSlideMasters()){
-            System.out.println(am.toString());
-        }
 
         // HSLFSoundData[] sds = ss.getSoundData();
         // for(HSLFSoundData sd:ss.getSoundData()){
@@ -73,6 +68,7 @@ public class poi315 {
         for (HSLFPictureData pict : ss.getPictureData()) {
             // picture data
             byte[] data = pict.getData();
+            System.out.println(pict.getHeader().toString());
             PictureData.PictureType type = pict.getType();
             String ext = type.extension;
             FileOutputStream out = new FileOutputStream(path + pict.getIndex() + ext);
@@ -112,14 +108,26 @@ public class poi315 {
             // 下面备注
             // System.out.println(slide.getSlideNumber() + ": " +
             // slide.getNotes().getTextParagraphs().toString());
-//            if (slide.getBackground().getFill().getPictureData() != null) {
-//                System.out.println(slide.getSlideNumber() + ":       " + slide.getBackground().getFill().getPictureData().getIndex());
-//            } else {
-//                System.out.println(slide.getSlideNumber() + ":       " + slide.getBackground().getFill().getBackgroundColor());
-//            }
-//            System.out.println(slide.getSlideNumber() + ":       " + slide.getBackground().getFill().getForegroundColor());
-//            System.out.println(slide.getSlideNumber() + ":       " + slide.getFollowMasterBackground());
-            System.out.println(slide.getSlideNumber()+":    "+slide.getMasterSheet().toString());
+            // if (slide.getBackground().getFill().getPictureData() != null) {
+            // System.out.println(slide.getSlideNumber() + ": " +
+            // slide.getBackground().getFill().getPictureData().getIndex());
+            // } else {
+            // System.out.println(slide.getSlideNumber() + ": " +
+            // slide.getBackground().getFill().getBackgroundColor());
+            // }
+            // System.out.println(slide.getSlideNumber() + ": " +
+            // slide.getBackground().getFill().getForegroundColor());
+            // System.out.println(slide.getSlideNumber() + ": " +
+            // slide.getFollowMasterBackground());
+            System.out.println(slide.getSlideNumber() + ":    " + slide.getMasterSheet().getColorScheme().getColor(2));
+        }
+
+        // 获取母版
+        for (HSLFSlideMaster am : ss.getSlideMasters()) {
+            System.out.println(am.toString());
+            if (am.getBackground().getFill().getPictureData() != null) {
+                System.out.println(ss.getSlideMasters().size()+"   "+am.toString()+"   "+am.getBackground().getFill().getPictureData().getIndex());
+            }
         }
 
         // System.out.println(texts);
