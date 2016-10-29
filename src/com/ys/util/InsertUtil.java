@@ -26,7 +26,7 @@ public class InsertUtil {
 
     // js标签开始
     public static String JSswitch(int num) {
-        String result = "\n\n\n\n\n<script type=\"text/javascript\" language=\"JavaScript\">\n var cou = 0;function selAll() {switch(cou) {";
+        String result = "\n<script type=\"text/javascript\" language=\"JavaScript\">\n var cou = 0;function selAll() {switch(cou) {";
         for (int i = 0; i < num; i++) {
             result = result + "case " + i + ":fun" + i + "();cou++;break;";
         }
