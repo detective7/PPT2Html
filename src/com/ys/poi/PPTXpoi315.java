@@ -24,6 +24,7 @@ import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTBackground;
 
 import com.ys.util.PPTXhtmlUtil;
+import com.ys.util.TransformUtil;
 import com.ys.util.Wmf2Svg;
 
 public class PPTXpoi315 {
@@ -35,6 +36,8 @@ public class PPTXpoi315 {
     private static String path;
     private static PPTXhtmlUtil htmlins;
     private static Dimension pageSize;
+    //p计数量
+    private static int shapeNum;
 
     public static void main(String[] args) throws Exception {
         
@@ -44,12 +47,13 @@ public class PPTXpoi315 {
         is.close();
         img = new HashMap<String, String>();
         pageSize = ppts.getPageSize();
+        shapeNum=0;
 
         fs = new FileOutputStream(new File(path + "outpptx.html"));
         printStream = new PrintStream(fs);
 
         getPic(ppts);
-        System.out.println(img.toString());
+        //System.out.println(img.toString());
 
         htmlins = new PPTXhtmlUtil(printStream);
         htmlins.start();
@@ -127,7 +131,7 @@ public class PPTXpoi315 {
             // System.out.println("backg: 没背景");
         }
         for (XSLFShape shape : ppt.getSlideLayout().getShapes()) {
-            dealGroupShape(shape);
+                dealBGShape(shape);
         }
     }
 
@@ -141,7 +145,15 @@ public class PPTXpoi315 {
             XSLFTextShape txShape = (XSLFTextShape) shape;
 
             String txStr = txShape.getText().replaceAll("\n", "<br>");
-            // System.out.println("txStr: =>" + txStr);
+            if (txShape.getFillColor() != null) {
+                shapeNum++;
+                //System.out.println(txShape.getShapeName());
+                htmlins.insertP(shapeNum, txShape);//txShape.getAnchor().toString(), TransformUtil.toHex(txShape.getFillColor().toString()));
+            } else {
+                shapeNum++;
+                htmlins.insertP(shapeNum, txShape);//.getAnchor().toString(), null);
+            }
+//            System.out.println("txStr: =>" + txStr+"   "+txShape.getAnchor().toString()+"   "+txShape.getFillColor());
             for (XSLFTextParagraph p : txShape) {
                 // out.println("Paragraph level: " +
                 // p.getIndentLevel());
@@ -160,11 +172,12 @@ public class PPTXpoi315 {
                     for (; txStr.startsWith(" ");) {
                         txStr = txStr.replaceFirst(" ", "");
                     }
-                    // 回车换行得额外弄，按顺序把字符替换掉,剩下的，是上面textparam查不出的字符，再贴上去
+                    // 回车换行得额外弄，按顺序把字符替换掉，剩下的，是上面textparam查不出的字符，再贴上去
                     for (; txStr.startsWith("<br>");) {
                         reStr = reStr + "<br>";
                         txStr = txStr.replaceFirst("<br>", "");
                     }
+                    htmlins.insertSpan(shapeNum, r, reStr);
                     // System.out.println("txStr: =>" + txStr);
                     // System.out.println(" bold: " + r.isBold());
                     // System.out.println(" italic: " + r.isItalic());
@@ -173,6 +186,23 @@ public class PPTXpoi315 {
                     // System.out.println(" font.size: " + r.getFontSize());
                     // System.out.println(" font.color: " + r.getFontColor());
                 }
+            }
+        } else if (shape instanceof XSLFPictureShape) {
+            XSLFPictureShape tsh = (XSLFPictureShape) shape;
+            htmlins.insertImg(img.get(tsh.getPictureData().getFileName()), tsh.getAnchor().toString());
+            // System.out.println("layout: " +
+            // tsh.getPictureData().getFileName() + " " +
+            // tsh.getAnchor().toString());
+        } else {
+            System.out.println("识别不出: "+shape.getClass());
+        }
+    }
+    
+    public static void dealBGShape(XSLFShape shape) {
+        if (shape instanceof XSLFGroupShape) {
+            XSLFGroupShape group = (XSLFGroupShape) shape;
+            for (XSLFShape subShape : group.getShapes()) {
+                dealGroupShape(subShape);
             }
         } else if (shape instanceof XSLFPictureShape) {
             XSLFPictureShape tsh = (XSLFPictureShape) shape;

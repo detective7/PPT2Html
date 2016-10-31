@@ -62,7 +62,7 @@ public class InsertUtil {
         return result;
     }
 
-    // js标签内，插入文字div，绝对位置，宽高，文本框背景色
+    // js标签内，插入文字标签p，绝对位置，宽高，文本框背景色
     public static String insertP(int j, String pos, String bgColor) {
         String all = pos.substring(pos.indexOf('[') + 1, pos.indexOf(']'));
         String[] alls, xs, ys, ws, hs;
