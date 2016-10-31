@@ -26,7 +26,6 @@ import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.apache.batik.transcoder.image.JPEGTranscoder;
 import org.apache.batik.transcoder.image.PNGTranscoder;
-import org.apache.batik.transcoder.wmf.tosvg.WMFTranscoder;
 import org.w3c.dom.Document;
 
 
@@ -34,7 +33,7 @@ public class Wmf2Svg {
 
 	public static void main(String[] args) throws TranscoderException, IOException {
 
-		String result = convert("E:\\PPTpoi\\aqyd\\img\\2.wmf");
+//		String result = convert("E:\\PPTpoi\\aqyd\\img\\2.wmf");
 
 	}
 

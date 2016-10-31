@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hslf.usermodel.HSLFSlide;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFBackground;
 import org.apache.poi.xslf.usermodel.XSLFGroupShape;
@@ -24,7 +23,6 @@ import org.apache.poi.xslf.usermodel.XSLFTextShape;
 import org.openxmlformats.schemas.presentationml.x2006.main.CTBackground;
 
 import com.ys.util.PPTXhtmlUtil;
-import com.ys.util.TransformUtil;
 import com.ys.util.Wmf2Svg;
 
 public class PPTXpoi315 {
@@ -41,8 +39,8 @@ public class PPTXpoi315 {
 
     public static void main(String[] args) throws Exception {
         
-        path = "E:\\PPTpoi\\y\\";
-        FileInputStream is = new FileInputStream(path + "yx.pptx");
+        path = "E:\\PPTpoi\\s\\";
+        FileInputStream is = new FileInputStream(path + "sx.pptx");
         XMLSlideShow ppts = new XMLSlideShow(is);
         is.close();
         img = new HashMap<String, String>();
@@ -178,13 +176,7 @@ public class PPTXpoi315 {
                         txStr = txStr.replaceFirst("<br>", "");
                     }
                     htmlins.insertSpan(shapeNum, r, reStr);
-                    // System.out.println("txStr: =>" + txStr);
-                    // System.out.println(" bold: " + r.isBold());
-                    // System.out.println(" italic: " + r.isItalic());
-                    // System.out.println(" underline: " + r.isUnderlined());
-                    // System.out.println(" font.family: " + r.getFontFamily());
-                    // System.out.println(" font.size: " + r.getFontSize());
-                    // System.out.println(" font.color: " + r.getFontColor());
+//                    System.out.println(" font.family: " + r.getFontFamily());
                 }
             }
         } else if (shape instanceof XSLFPictureShape) {

@@ -40,7 +40,7 @@ public class Space {
             String type = p.getContentType();
 
             String name = p.getPartName().getName();
-//            out.println("Embedded file (" + type + "): " + name);
+            out.println("Embedded file (" + type + "): " + name);
 
             InputStream pIs = p.getInputStream();
 
@@ -50,7 +50,7 @@ public class Space {
         for (XSLFPictureData data : ppt.getPictureData()) {
             String type = data.getContentType();
             String name = data.getFileName();
-//            out.println("Picture (" + type + "): " + name);
+            out.println("Picture (" + type + "): " + name);
 
             FileOutputStream fileout = new FileOutputStream(path+"imgPPTX\\" + name);
             fileout.write(data.getData());
@@ -60,7 +60,7 @@ public class Space {
         }
 
         Dimension pageSize = ppt.getPageSize();
-//        out.println("Pagesize: " + pageSize);
+        out.println("Pagesize: " + pageSize);
 
         for (XSLFSlide slide : ppt.getSlides()) {
             for (XSLFShape shape : slide) {
@@ -98,7 +98,7 @@ public class Space {
                 } else if (shape instanceof XSLFPictureShape) {
                     XSLFPictureShape pShape = (XSLFPictureShape) shape;
                     XSLFPictureData pData = pShape.getPictureData();
-//                    out.println(pData.getFileName());
+                    out.println(pData.getFileName());
                 } else {
 //                    out.println("Process me: " + shape.getClass());
                 }

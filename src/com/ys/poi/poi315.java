@@ -8,6 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ddf.EscherContainerRecord;
+import org.apache.poi.ddf.UnknownEscherRecord;
+import org.apache.poi.hslf.record.AnimationInfo;
+import org.apache.poi.hslf.record.RecordTypes;
 import org.apache.poi.hslf.usermodel.HSLFPictureData;
 import org.apache.poi.hslf.usermodel.HSLFShape;
 import org.apache.poi.hslf.usermodel.HSLFSlide;
@@ -24,9 +28,9 @@ import com.ys.util.Wmf2Svg;
 public class poi315 {
 
     // 图片默认存放路径
-    public final static String path = "E:\\PPTpoi\\y\\img\\";
+    public final static String path = "E:\\PPTpoi\\y\\";
     // public final static String pathS = "E:\\PPTpoi\\安全用电\\sound\\";
-    private static Map img;
+    private static Map<Integer, String> img;
     private static List<PPTText> texts;
     private static PrintStream printStream;
     private static FileOutputStream fs;
@@ -36,14 +40,12 @@ public class poi315 {
         /*
          * 网页输出
          */
-        fs = new FileOutputStream(new File("E:\\PPTpoi\\y\\output.html"));
+        fs = new FileOutputStream(new File(path + "output.html"));
         printStream = new PrintStream(fs);
-        printStream.println(
-                "<!DOCTYPE html>\n<html lang=\"en\" xmlns=\"http://www.w3.org/1/xhtml\">\n<head>\n<meta charset=\"utf-8\" />" + "<title>js实现ppt</title>");
 
         // 加载PPT
-        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl("E:\\PPTpoi\\y\\y.ppt"));
-        img = new HashMap();
+        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl(path + "y.ppt"));
+        img = new HashMap<Integer, String>();
 
         // HSLFSoundData[] sds = ss.getSoundData();
         // for(HSLFSoundData sd:ss.getSoundData()){
@@ -64,10 +66,10 @@ public class poi315 {
             // System.out.println(pict.getHeader().toString());
             PictureData.PictureType type = pict.getType();
             String ext = type.extension;
-            FileOutputStream out = new FileOutputStream(path + pict.getIndex() + ext);
+            FileOutputStream out = new FileOutputStream(path + "img\\" + pict.getIndex() + ext);
             out.write(data);
             if (ext.equals(".wmf")) {
-                Wmf2Svg.convert(path + pict.getIndex() + ext);
+                Wmf2Svg.convert(path + "img\\" + pict.getIndex() + ext);
                 ext = ".svg";
             }
             // System.out.println(pict.getHeader().toString());
@@ -79,7 +81,7 @@ public class poi315 {
         texts = new ArrayList<PPTText>();
         List<HSLFSlide> slides = ss.getSlides();
 
-        //获取所有不同字体的文字
+        // 获取所有不同字体的文字
         for (HSLFSlide slide : slides) {
             // 取每部分字的字体，大小和颜色
             List<List<HSLFTextParagraph>> textPss = slide.getTextParagraphs();
@@ -100,28 +102,27 @@ public class poi315 {
                     }
                 }
             }
+
+            // 背景（母版，主题，布局里面的取不到）
+            /*if (slide.getBackground().getFill().getPictureData() != null) {
+                System.out.println(slide.getSlideNumber() + ": " + slide.getBackground().getFill().getPictureData().getIndex());
+            } else {
+                System.out.println(slide.getSlideNumber() + ": " + slide.getBackground().getFill().getBackgroundColor());
+            }*/
             
-            insertUtil=new InsertUtil(printStream,texts,img);
-
-            printStream.println(insertUtil.JSswitch(slides.size()));
-
-            // 下面备注
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getNotes().getTextParagraphs().toString());
-            // if (slide.getBackground().getFill().getPictureData() != null) {
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getBackground().getFill().getPictureData().getIndex());
-            // } else {
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getBackground().getFill().getBackgroundColor());
-            // }
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getBackground().getFill().getForegroundColor());
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getFollowMasterBackground());
-            // System.out.println(slide.getSlideNumber() + ": " +
-            // slide.getMasterSheet().getColorScheme().getColor(2));
+            //布局的动画
+            /*org.apache.poi.hslf.record.Slide sRecord = slide.getSlideRecord();
+            AnimationInfo animInfo = (AnimationInfo) sRecord.findFirstOfType(RecordTypes.AnimationInfo.typeID);
+            if (animInfo!=null){ 
+                System.out.println(slide.getSlideNumber()+"  "+animInfo.getAnimationInfoAtom().toString());
+            }else{
+                System.out.println(slide.getSlideNumber()+"  "+"no animInfo");
+            }*/
         }
+
+        insertUtil = new InsertUtil(printStream, texts, img);
+
+        insertUtil.JSswitch(slides.size());
 
         // 获取母版
         // for (HSLFSlideMaster am : ss.getSlideMasters()) {
@@ -145,6 +146,15 @@ public class poi315 {
 
             int j = 0;
             for (HSLFShape shape : slides.get(i).getShapes()) {
+                EscherContainerRecord container = shape.getSpContainer();
+                ArrayList lAnimInfoAtom = new ArrayList();
+                container.getRecordsById((short) RecordTypes.AnimationInfoAtom.typeID, lAnimInfoAtom);
+                if (lAnimInfoAtom.size() != 0)
+                {
+                  // unknown should be of type AnimationInfoAtom...
+                  UnknownEscherRecord unknown = (UnknownEscherRecord)lAnimInfoAtom.get(0);
+                  System.out.println(unknown.getRecordName());
+                } 
                 // System.out.println("框类型" + shape.getClass().toGenericString()
                 // + " " + shape.getShapeName() + " ");
                 insertUtil.dealWithGroup(j, slides.get(i).getSlideNumber(), shape);
@@ -154,8 +164,9 @@ public class poi315 {
             // "张PPT解析结束 \n");
             printStream.println("}}");
         }
-        printStream.println(insertUtil.endDiv(ss.getPageSize().width, ss.getPageSize().height));
+        insertUtil.endDiv(ss.getPageSize().width, ss.getPageSize().height);
         printStream.close();
+        ss.close();
     }
 
 }
