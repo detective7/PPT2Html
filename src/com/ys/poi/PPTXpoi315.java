@@ -35,17 +35,17 @@ public class PPTXpoi315 {
     private static PPTXhtmlUtil htmlins;
     private static Dimension pageSize;
     //p计数量
-    private static int shapeNum;
+//    private static int shapeNum;
 
     public static void main(String[] args) throws Exception {
         
-        path = "E:\\PPTpoi\\s\\";
-        FileInputStream is = new FileInputStream(path + "sx.pptx");
+        path = "E:\\PPTpoi\\y\\";
+        FileInputStream is = new FileInputStream(path + "yx.pptx");
         XMLSlideShow ppts = new XMLSlideShow(is);
         is.close();
         img = new HashMap<String, String>();
         pageSize = ppts.getPageSize();
-        shapeNum=0;
+//        shapeNum=0;
 
         fs = new FileOutputStream(new File(path + "outpptx.html"));
         printStream = new PrintStream(fs);
@@ -71,7 +71,7 @@ public class PPTXpoi315 {
 
             // 获取文字和图片
             for (XSLFShape shape : slides.get(i)) {
-                dealGroupShape(shape);
+                dealGroupShape(shape,null);
             }
             printStream.println("}}");
         }
@@ -133,23 +133,24 @@ public class PPTXpoi315 {
         }
     }
 
-    public static void dealGroupShape(XSLFShape shape) {
+    public static void dealGroupShape(XSLFShape shape,String shapeId) {
         if (shape instanceof XSLFGroupShape) {
             XSLFGroupShape group = (XSLFGroupShape) shape;
+            htmlins.insertDiv(group);
             for (XSLFShape subShape : group.getShapes()) {
-                dealGroupShape(subShape);
+                dealGroupShape(subShape,group.getShapeId()+"");
             }
         } else if (shape instanceof XSLFTextShape) {
             XSLFTextShape txShape = (XSLFTextShape) shape;
 
             String txStr = txShape.getText().replaceAll("\n", "<br>");
             if (txShape.getFillColor() != null) {
-                shapeNum++;
-                //System.out.println(txShape.getShapeName());
-                htmlins.insertP(shapeNum, txShape);//txShape.getAnchor().toString(), TransformUtil.toHex(txShape.getFillColor().toString()));
+//                shapeNum++;
+                System.out.println(txShape.getVerticalAlignment().toString());
+                htmlins.insertP(shape.getShapeId(), txShape);//txShape.getAnchor().toString(), TransformUtil.toHex(txShape.getFillColor().toString()));
             } else {
-                shapeNum++;
-                htmlins.insertP(shapeNum, txShape);//.getAnchor().toString(), null);
+//                shapeNum++;
+                htmlins.insertP(shape.getShapeId(), txShape);//.getAnchor().toString(), null);
             }
 //            System.out.println("txStr: =>" + txStr+"   "+txShape.getAnchor().toString()+"   "+txShape.getFillColor());
             for (XSLFTextParagraph p : txShape) {
@@ -175,7 +176,8 @@ public class PPTXpoi315 {
                         reStr = reStr + "<br>";
                         txStr = txStr.replaceFirst("<br>", "");
                     }
-                    htmlins.insertSpan(shapeNum, r, reStr);
+                    htmlins.insertSpan(txShape.getShapeId(), r, reStr);
+//                    System.out.println(reStr+"   "+p.getTextAlign().toString());
 //                    System.out.println(" font.family: " + r.getFontFamily());
                 }
             }
@@ -186,7 +188,7 @@ public class PPTXpoi315 {
             // tsh.getPictureData().getFileName() + " " +
             // tsh.getAnchor().toString());
         } else {
-            System.out.println("识别不出: "+shape.getClass());
+//            System.out.println("识别不出: "+shape.getClass());
         }
     }
     
@@ -194,7 +196,7 @@ public class PPTXpoi315 {
         if (shape instanceof XSLFGroupShape) {
             XSLFGroupShape group = (XSLFGroupShape) shape;
             for (XSLFShape subShape : group.getShapes()) {
-                dealGroupShape(subShape);
+                dealGroupShape(subShape,subShape.getShapeId()+"");
             }
         } else if (shape instanceof XSLFPictureShape) {
             XSLFPictureShape tsh = (XSLFPictureShape) shape;

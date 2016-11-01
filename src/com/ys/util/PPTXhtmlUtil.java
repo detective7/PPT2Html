@@ -4,6 +4,7 @@ import java.io.PrintStream;
 
 import org.apache.poi.sl.usermodel.PaintStyle;
 import org.apache.poi.sl.usermodel.PaintStyle.SolidPaint;
+import org.apache.poi.xslf.usermodel.XSLFGroupShape;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.apache.poi.xslf.usermodel.XSLFTextShape;
 
@@ -22,11 +23,11 @@ public class PPTXhtmlUtil {
 
     // js标签开始
     public void JSstart(int num) {
-        String result = "\n<script type=\"text/javascript\" language=\"JavaScript\">\n var cou = 0;function selAll() {switch(cou) {";
+        StringBuilder result =  new StringBuilder("\n<script type=\"text/javascript\" language=\"JavaScript\">\n var cou = 0;function selAll() {switch(cou) {");
         for (int i = 0; i < num; i++) {
-            result = result + "case " + i + ":fun" + i + "();cou++;break;";
+            result.append( "case " + i + ":fun" + i + "();cou++;break;");
         }
-        result += "}}";
+        result.append("}}");
         printStream.println(result);
     }
 
@@ -52,9 +53,9 @@ public class PPTXhtmlUtil {
         h = Float.valueOf(hs[1]);
         w = Float.valueOf(ws[1]);
 
-        String result = "\n var image" + " = document.createElement(\"img\");" + "\n image" + ".setAttribute(\"style\", \"position: absolute;top: " + y
+        StringBuilder result = new StringBuilder("\n var image" + " = document.createElement(\"img\");" + "\n image" + ".setAttribute(\"style\", \"position: absolute;top: " + y
                 + "px;left: " + x + "px;width: " + w + "px;height: " + h + "px;\")" + ";image" + ".src = \"imgPPTX/" + imgName + "\";"
-                + "div_all.appendChild(image" + ");";
+                + "div_all.appendChild(image" + ");");
         // System.out.println(result);
         printStream.println(result);
     }
@@ -62,6 +63,7 @@ public class PPTXhtmlUtil {
     // js标签内，插入文字标签p，绝对位置，宽高，文本框背景色
     public void insertP(int j, XSLFTextShape txShape) {
         String pos=txShape.getAnchor().toString();
+        //System.out.println(pos);
         String all = pos.substring(pos.indexOf('[') + 1, pos.indexOf(']'));
         String[] alls, xs, ys, ws, hs;
         alls = all.split(",");
@@ -74,15 +76,15 @@ public class PPTXhtmlUtil {
         y = Float.valueOf(ys[1]);
         h = Float.valueOf(hs[1]);
         w = Float.valueOf(ws[1]);
-        String result = null;
+        StringBuilder result =  new StringBuilder("");
         if (txShape.getFillColor() != null) {
             String bgColor=TransformUtil.toHex(txShape.getFillColor().toString());
             double bgAlpha=(double)txShape.getFillColor().getAlpha()/255d;
-            result = "\n var p" + j + " = document.createElement(\"p\");" + "\n p" + j + ".setAttribute(\"style\", \"background:"+bgColor+";margin:0;opacity:"+bgAlpha+";position: absolute;top: " + y + "px;left: "
-                    + x + "px;width: " + w + "px;height: " + h + "px;\");\n" + "div_all.appendChild(p" + j + ");";
+            result.append("\n var p" + j + " = document.createElement(\"p\");" + "\n p" + j + ".setAttribute(\"style\", \"background:"+bgColor+";margin:0;opacity:"+bgAlpha+";position: absolute;top: " + y + "px;left: "
+                    + x + "px;width: " + w + "px;height: " + h + "px;\");\n" + "div_all.appendChild(p" + j + ");");
         } else {
-            result = "\n var p" + j + " = document.createElement(\"p\");" + "\n p" + j + ".setAttribute(\"style\", \"position: absolute;top: " + y + "px;left: "
-                    + x + "px;width: " + w + "px;height: " + h + "px;\")" + ";\n" + "div_all.appendChild(p" + j + ");";
+            result.append("\n var p" + j + " = document.createElement(\"p\");" + "\n p" + j + ".setAttribute(\"style\", \"position: absolute;top: " + y + "px;left: "
+                    + x + "px;width: " + w + "px;height: " + h + "px;\")" + ";\n" + "div_all.appendChild(p" + j + ");");
         }
         // System.out.println(result);
         printStream.println(result);
@@ -90,29 +92,50 @@ public class PPTXhtmlUtil {
 
     // 向p里添加span标签，输入文字
     public void insertSpan(int j, XSLFTextRun text, String str) {
-        String result = "\n var span = document.createElement(\"span\");";
+        StringBuilder result = new StringBuilder("\n var span = document.createElement(\"span\");");
         if (text != null) {
             if (text.getFontColor() instanceof PaintStyle.SolidPaint) {
                 SolidPaint color = (PaintStyle.SolidPaint) text.getFontColor();
-                result += "\n span.setAttribute(\"style\", \"font-family:" + text.getFontFamily() + ";font-size: " + text.getFontSize() + "px;color:"
-                        + TransformUtil.toHex(color.getSolidColor().getColor().toString());
+                result.append("\n span.setAttribute(\"style\", \"font-family:" + text.getFontFamily() + ";font-size: " + text.getFontSize() + "px;color:"
+                        + TransformUtil.toHex(color.getSolidColor().getColor().toString()));
             } else {
-                result += "\n span.setAttribute(\"style\", \"font-family:" + text.getFontFamily() + ";font-size: " + text.getFontSize() + "px";
+                result.append("\n span.setAttribute(\"style\", \"font-family:" + text.getFontFamily() + ";font-size: " + text.getFontSize() + "px");
             }
             if(text.isBold()){
-                result +="; font-weight: bold";
+                result.append("; font-weight: bold");
             }
             if(text.isItalic()){
-                result +=";font-style: italic";
+                result.append(";font-style: italic");
             }
             if(text.isUnderlined()){
-                result +="; text-decoration: underline";
+                result.append("; text-decoration: underline");
             }
-            result +=";margin: 0;"+ "\");\nspan.innerHTML = \"" + str + "\";\n" + "p" + j + ".appendChild(span);";
+            result.append(";margin: 0;"+ "\");\nspan.innerHTML = \"" + str + "\";\n" + "p" + j + ".appendChild(span);");
         } else {
-            result += "\nspan.innerHTML = \"" + str + "\";\n" + "p" + j + ".appendChild(span);";
+            result.append("\nspan.innerHTML = \"" + str + "\";\n" + "p" + j + ".appendChild(span);");
         }
         // System.out.println(str);
         printStream.println(result);
     }
+
+    public void insertDiv(XSLFGroupShape group) {
+        String pos=group.getAnchor().toString();
+        String all = pos.substring(pos.indexOf('[') + 1, pos.indexOf(']'));
+        String[] alls, xs, ys, ws, hs;
+        alls = all.split(",");
+        xs = alls[0].split("=");
+        ys = alls[1].split("=");
+        ws = alls[2].split("=");
+        hs = alls[3].split("=");
+        float x, y, h, w;
+        x = Float.valueOf(xs[1]);
+        y = Float.valueOf(ys[1]);
+        h = Float.valueOf(hs[1]);
+        w = Float.valueOf(ws[1]);
+        StringBuilder result = new StringBuilder("\n var div"+group.getShapeId()+" = document.createElement(\"div\");\n");
+        result.append("div"+group.getShapeId()+".setAttribute(\"style\", \"width:"+w+"px;height:"+h+"px;border: 2px solid;left: "+x+"px;top: "+y+"px;position:absolute;\");");
+        result.append("\n div_all.appendChild(div"+group.getShapeId()+ ");");
+        printStream.println(result);
+    }
+    
 }

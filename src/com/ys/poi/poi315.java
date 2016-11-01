@@ -8,10 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.ddf.EscherContainerRecord;
-import org.apache.poi.ddf.UnknownEscherRecord;
-import org.apache.poi.hslf.record.AnimationInfo;
-import org.apache.poi.hslf.record.RecordTypes;
 import org.apache.poi.hslf.usermodel.HSLFPictureData;
 import org.apache.poi.hslf.usermodel.HSLFShape;
 import org.apache.poi.hslf.usermodel.HSLFSlide;
@@ -19,7 +15,6 @@ import org.apache.poi.hslf.usermodel.HSLFSlideShow;
 import org.apache.poi.hslf.usermodel.HSLFSlideShowImpl;
 import org.apache.poi.hslf.usermodel.HSLFTextParagraph;
 import org.apache.poi.hslf.usermodel.HSLFTextRun;
-import org.apache.poi.sl.usermodel.PictureData;
 
 import com.ys.util.InsertUtil;
 import com.ys.util.TransformUtil;
@@ -28,7 +23,7 @@ import com.ys.util.Wmf2Svg;
 public class poi315 {
 
     // 图片默认存放路径
-    public final static String path = "E:\\PPTpoi\\y\\";
+    public final static String path = "E:\\PPTpoi\\s\\";
     // public final static String pathS = "E:\\PPTpoi\\安全用电\\sound\\";
     private static Map<Integer, String> img;
     private static List<PPTText> texts;
@@ -44,7 +39,7 @@ public class poi315 {
         printStream = new PrintStream(fs);
 
         // 加载PPT
-        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl(path + "y.ppt"));
+        HSLFSlideShow ss = new HSLFSlideShow(new HSLFSlideShowImpl(path + "s.ppt"));
         img = new HashMap<Integer, String>();
 
         // HSLFSoundData[] sds = ss.getSoundData();
@@ -64,8 +59,7 @@ public class poi315 {
             // picture data
             byte[] data = pict.getData();
             // System.out.println(pict.getHeader().toString());
-            PictureData.PictureType type = pict.getType();
-            String ext = type.extension;
+            String ext = pict.getType().extension;
             FileOutputStream out = new FileOutputStream(path + "img\\" + pict.getIndex() + ext);
             out.write(data);
             if (ext.equals(".wmf")) {
@@ -143,10 +137,17 @@ public class poi315 {
              */
             printStream.println("\n function fun" + i
                     + "() {\n var div_all = document.getElementById(\"all\");\n if(div_all) {while(div_all.hasChildNodes()) {div_all.removeChild(div_all.firstChild);}");
-
+            //插入背景
+            if (slides.get(i).getBackground().getFill().getPictureData() != null) {
+                insertUtil.insertImg(i, slides.get(i).getBackground().getFill().getPictureData().getIndex(), "[x=0,y=0,w="+ss.getPageSize().width+",h="+ss.getPageSize().height+"]");
+            } /*else {
+                System.out.println(slides.get(i).getSlideNumber() + ": " + slides.get(i).getBackground().getFill().getBackgroundColor());
+            }*/
             int j = 0;
             for (HSLFShape shape : slides.get(i).getShapes()) {
-                EscherContainerRecord container = shape.getSpContainer();
+                /*
+                 * 无效动画
+                 * EscherContainerRecord container = shape.getSpContainer();
                 ArrayList lAnimInfoAtom = new ArrayList();
                 container.getRecordsById((short) RecordTypes.AnimationInfoAtom.typeID, lAnimInfoAtom);
                 if (lAnimInfoAtom.size() != 0)
@@ -154,7 +155,7 @@ public class poi315 {
                   // unknown should be of type AnimationInfoAtom...
                   UnknownEscherRecord unknown = (UnknownEscherRecord)lAnimInfoAtom.get(0);
                   System.out.println(unknown.getRecordName());
-                } 
+                } */
                 // System.out.println("框类型" + shape.getClass().toGenericString()
                 // + " " + shape.getShapeName() + " ");
                 insertUtil.dealWithGroup(j, slides.get(i).getSlideNumber(), shape);
